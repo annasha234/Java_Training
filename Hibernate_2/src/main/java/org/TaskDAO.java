@@ -1,6 +1,8 @@
 package org;
 
-import jakarta.persistence.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,115 +11,118 @@ public class TaskDAO {
     private EntityManagerFactory emf;
     private EntityManager em;
 
-    public TaskDAO(){
-        this.emf= Persistence.createEntityManagerFactory("taskPU");
-        this.em=emf.createEntityManager();
+    public TaskDAO() {
+        //Get EntityManagerFactory from persistence.xml (persistence unit name : taskPU)
+        this.emf = Persistence.createEntityManagerFactory("taskPU");
+        this.em = emf.createEntityManager();
     }
 
-    public TaskDTO create(Long userId,Task task){
-        try{
-            User user=em.find(User.class,userId);
-            if(user == null){
-                System.out.println("User not found with id: "+userId);
+    //CREATE - Save a new task to database
+    public TaskDTO create(Long userId, Task task) {
+        try {
+            User user = em.find(User.class, userId);
+            if (user == null) {
+                System.out.println("User not found with id: " + userId);
                 return null;
             }
-
             em.getTransaction().begin();
             task.setUser(user);
-
             em.persist(task);
-
-            //write to database
             em.getTransaction().commit();
-            System.out.println("Task created successfully with id: "+task.getId());
 
-            //convert to DTO and return
             return convertToDTO(task);
-        } catch (Exception e){
-            //RollBack if error
-            if(em.getTransaction().isActive()) {
+
+
+        } catch (Exception e) {
+            //Rollback if error occurs
+            if (em.getTransaction().isActive()) {
                 em.getTransaction().rollback();
             }
-            System.out.println("Error creating task:" +e.getMessage());
+            System.out.println("Error creating tasks: " + e.getMessage());
             return null;
+
         }
     }
 
-    public TaskDTO read(Long id){
+    //READ - Get a task by id
+    public TaskDTO read(Long id, Long userId){
         try{
-            Task task=em.find(Task.class,id);
+            //No Transaction needed for read operation
+            Task task = em.find(Task.class,id);
 
-            if(task !=null){
-                System.out.println("Task found with id:"+id);
+            if(task!= null && task.getUser()!=null & task.getUser().getId().equals(userId)){
+                System.out.println("Task found with id: "+id);
                 return convertToDTO(task);
-            } else {
+            }
+            else{
                 System.out.println("Task not found with id: "+id);
                 return null;
             }
-        } catch(Exception e){
+        }
+        catch(Exception e){
             System.out.println("Error reading task: "+e.getMessage());
             return null;
         }
     }
-
-    public TaskDTO update(long id, String taskName, String description){
+    public TaskDTO update(Long id,String taskName,String description,Long userId){
         try{
-            //begin transaction
+            //Step 1: Begin transaction
             em.getTransaction().begin();
 
-            //find task
-            Task task=em.find(Task.class,id);
+            //Step 2: Find the task
+            Task task = em.find(Task.class,id);
 
-            if(task !=null){
-                //update field
+            if(task != null && task.getUser()!=null && task.getUser().getId().equals(userId)){
+                //Step 3: Update fields
                 task.setTask(taskName);
                 task.setDescription(description);
 
-                //merge(update in database
-                Task updatedTask=em.merge(task);
+                //Step 4: Merge (update in database)
+                Task updatedTask = em.merge(task);
 
-                //commit transaction
+                //Step 5: Commit transaction
                 em.getTransaction().commit();
 
                 System.out.println("Task updated successfully with id: "+id);
-                return convertToDTO(updatedTask);
-            } else {
+                return convertToDTO(task);
+            }else{
                 em.getTransaction().rollback();
                 System.out.println("Task not found with id: "+id);
                 return null;
             }
-        } catch (Exception e){
+        }catch(Exception e){
             if(em.getTransaction().isActive()){
                 em.getTransaction().rollback();
             }
-            System.out.println("Error updating task: "+e.getMessage());
+            System.out.println("Error updating tasks: "+e.getMessage());
             return null;
         }
     }
-
-    public boolean delete(long id){
+    public boolean delete(Long id,Long userId){
         try{
-            //begin transaction
+            //Step 1: Begin transaction
             em.getTransaction().begin();
 
-            //find task
-            Task task=em.find(Task.class,id);
+            //Step 2: Find the task
+            Task task = em.find(Task.class,id);
 
-            if(task != null){
-                //remove from database
+            if(task!=null && task.getUser()!=null && task.getUser().getId().equals(userId)){
+                //Step 3: Remove (delete) from database
                 em.remove(task);
 
-                //commit transaction
+                //Step 4: Commit transaction
                 em.getTransaction().commit();
 
-                System.out.println("Task deleted successfullu=y with id: "+id);
-                return  true;
-            } else {
+                System.out.println("Task deleted successfully with id: "+id);
+                return true;
+            }
+            else{
                 em.getTransaction().rollback();
                 System.out.println("Task not found with id: "+id);
                 return false;
             }
-        } catch (Exception e){
+        }
+        catch(Exception e){
             if(em.getTransaction().isActive()){
                 em.getTransaction().rollback();
             }
@@ -125,42 +130,49 @@ public class TaskDAO {
             return false;
         }
     }
-
-    public List<TaskDTO> getAllTask(){
-        List<TaskDTO> taskList=new ArrayList<>();
+    public List<TaskDTO> getAllTasks(){
+        List<TaskDTO> taskList = new ArrayList<>();
         try{
             //JPQL query to get all tasks
-            String jpql="SELECT t FROM Task t";
-            List<Task> tasks=em.createQuery(jpql,Task.class).getResultList();
+            String jpql = "SELECT t from Task t";
+            List<Task> tasks = em.createQuery(jpql,Task.class).getResultList();
 
-            //convert each entity to DTO
-            for(Task task:tasks){
+            //Convert each entity to DTO
+            for(Task task: tasks){
                 taskList.add(convertToDTO(task));
             }
-            System.out.println("Retrieved "+ taskList.size()+" task from database");
+
+            System.out.println("Retrieved: "+ taskList.size() + "tasks from database");
             return taskList;
-        } catch (Exception e){
-            System.out.println("Error retrieving task: "+e.getMessage());
-            return taskList; //Return empty list if error
+        }catch(Exception e){
+            System.out.println("Error retrieving tasks: "+e.getMessage());
+            return taskList; //Returns empty list if error
         }
     }
 
+
+    //Helper method - Convert entity to DTO
     private TaskDTO convertToDTO(Task task){
-        return  new TaskDTO(
+        Long userId = null;
+        if(task.getUser()!=null){
+            userId = task.getUser().getId();
+
+        }
+        return new TaskDTO(
                 task.getId(),
                 task.getTask(),
                 task.getDescription(),
-                task.getUserId()
+                userId
         );
     }
-
     public void close(){
-        if(em != null && em.isOpen()){
+        if(em!=null && em.isOpen()){
             em.close();
         }
-        if(em !=null && emf.isOpen()){
+        if(emf!=null && emf.isOpen()){
             emf.close();
         }
-        System.out.println("Database connection closed");
+        System.out.println("Database Connection closed");
+
     }
 }

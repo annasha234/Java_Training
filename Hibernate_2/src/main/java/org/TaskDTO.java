@@ -1,28 +1,27 @@
 package org;
 
 public class TaskDTO {
-    private long id;
+    private Long id;
     private String task;
     private String description;
-    private Long userId;
-
+    private Long userId;//Foreign key
+    //Default Constructor
     public TaskDTO(){
 
     }
-
-    public TaskDTO(long id, String task,  String description, Long userId) {
-        this.task = task;
-        this.id = id;
-        this.description = description;
+    // Constructor with all fields
+    public TaskDTO(Long id, String task,String description,Long userId){
+        this.id=id;
+        this.task= task;
+        this.description= description;
         this.userId=userId;
     }
 
-
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -42,11 +41,13 @@ public class TaskDTO {
         this.description = description;
     }
 
-    public Long getUserId() { return userId; }
+    public Long getUserId() {
+        return userId;
+    }
 
-    public void setUserId(Long userId) { this.userId = userId; }
-
-
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
     @Override
     public String toString() {
         return "TaskDTO{" +
@@ -56,4 +57,6 @@ public class TaskDTO {
                 ", userId=" + userId +
                 '}';
     }
+
+
 }

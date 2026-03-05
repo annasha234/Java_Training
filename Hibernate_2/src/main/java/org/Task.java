@@ -7,29 +7,41 @@ import jakarta.persistence.*;
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
-
-    @Column(name ="task")
+    private Long Id; // Only non-primitive datatypes allowed
+    @Column(name = "task")
     private String task;
-
     @Column(name = "description")
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user id")
+    @JoinColumn(name = "user_id")
     private User user;
-
-    public Long getId(){ return Id; }
-
-    public void setId(Long id) {
-        Id = id;
+    public String getDescription() {
+        return description;
     }
 
-    public String getTask() {
-        return task;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public void setTask(String task) {
-        this.task = task;
+    public void setId(Long Id){
+        this.Id = Id;
+    }
+    public void setTask(String task){
+        this.task= task;
+    }
+    public Long getId(){
+        return this.Id;
+    }
+    public String getTask(){
+        return this.task;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

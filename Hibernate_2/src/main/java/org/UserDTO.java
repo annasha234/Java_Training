@@ -1,22 +1,26 @@
 package org;
 
 public class UserDTO {
-    private Long Id;
+    private Long id;
     private String name;
     private String email;
 
+    public UserDTO() {
+
+    }
+
     public UserDTO(Long id, String name, String email) {
-        Id = id;
+        this.id = id;
         this.name = name;
         this.email = email;
     }
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getName() {
@@ -38,10 +42,9 @@ public class UserDTO {
     @Override
     public String toString() {
         return "UserDTO{" +
-                "Id=" + Id +
+                "id=" + id +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 '}';
     }
 }
-

@@ -1,10 +1,11 @@
 <persistence xmlns="https://jakarta.ee/xml/ns/persistence" version="3.0">
     <persistence-unit name="taskPU">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <class>org.Task</class>
         <class>org.User</class>
-        <class>org.AutoEntity</class>
-        <class>org.SequenceEntity</class>
+
         <properties>
+            <!--Database-->
             <property name="jakarta.persistence.jdbc.url"
                       value="jdbc:mysql://localhost:3306/jpa_demo"/>
             <property name="jakarta.persistence.jdbc.user"
@@ -18,7 +19,37 @@
             <property name="hibernate.show_sql" value="true"/>
             <property name="hibernate.format_sql" value="true"/>
         </properties>
-
-
     </persistence-unit>
 </persistence>
+        <!--persistence.xml > Unit > EntityManagerFactory > EntityManager > Database-->
+        <!--Manager Factory-->
+        <!--update / create / validate / none-->
+        <!--1. Read persistence.xml-->
+        <!--Load Provider(Jakarta)-->
+        <!--Connect to DB-->
+        <!--Register Entities-->
+        <!--Prepare Meta data-->
+        <!--Create Persistence Context Factory-->
+
+
+        <!--Entity: Student
+        Table: students
+        id -bigint - pk -autoincrement
+        name - varchar - not null
+        age - integer-->
+
+        <!--Create Persistence Context Factory
+        Student s = em.find(Student.class,1L);
+        -->
+
+        <!--Entity Manager Interface
+        java code > Entity Manager >Hibernate > Database-->
+
+        <!-->Entity Manager Methods
+        persist / remove / find / merge / create query-->
+        <!--flush / clear / detach / close -->
+
+        <!--Container vs Application Managed Entity Manager
+        In Application Managed Entity Manager we have to take care of everything manually like JDBC
+        In Container Entity Manager most of the factors like em , emf are taken care of automatically like Spring Boot
+        -->
